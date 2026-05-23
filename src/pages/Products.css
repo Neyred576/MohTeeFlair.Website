@@ -84,6 +84,7 @@
   .products-cat-btn {
     flex-shrink: 0;
   }
+}
 
 .products-cat-btn {
   display: inline-flex; align-items: center; gap: 6px;

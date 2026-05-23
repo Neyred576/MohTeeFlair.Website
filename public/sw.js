@@ -119,19 +119,31 @@ self.addEventListener('push', (event) => {
     }
   } catch (e) {
     if (event.data) {
-      data.body = event.data.text();
+      try {
+        data.body = event.data.text();
+      } catch (err) {
+        // Fallback
+      }
     }
   }
 
+  const title = data.title || 'Moh Tee Flair ✨';
+  const body = data.body || data.message || 'You have a new update!';
+  const targetUrl = data.url || '/';
+
+  // Create absolute URLs which are required by many mobile PWA engines
+  const iconUrl = new URL('/icons/icon-192.png', self.location.origin).href;
+  const badgeUrl = new URL('/icons/icon-192.png', self.location.origin).href;
+
   const options = {
-    body: data.body || data.message || 'You have a new update!',
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    body: body,
+    icon: iconUrl,
+    badge: badgeUrl,
     vibrate: [200, 100, 200],
     tag: 'mtf-notification',
     renotify: true,
     data: {
-      url: data.url || '/',
+      url: targetUrl,
     },
     actions: [
       { action: 'open', title: 'View' },
@@ -140,7 +152,19 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title || 'Moh Tee Flair', options)
+    self.registration.showNotification(title, options)
+      .catch((err) => {
+        console.error('[SW] Rich notification failed, retrying with simple options:', err);
+        // Fallback to basic options for strict systems (like iOS/Safari) which fail on custom actions
+        return self.registration.showNotification(title, {
+          body: body,
+          icon: iconUrl,
+          badge: badgeUrl,
+          data: {
+            url: targetUrl,
+          }
+        });
+      })
   );
 });
 

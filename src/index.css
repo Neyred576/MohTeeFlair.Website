@@ -164,6 +164,12 @@ input, textarea, select { font-family: inherit; }
 @media (max-width: 768px) {
   .container { padding: 0 20px; }
   .section { padding: 70px 0; }
+  .section-sm { padding: 44px 0; }
+}
+@media (max-width: 480px) {
+  .section { padding: 52px 0; }
+  .section-sm { padding: 32px 0; }
+  .container { padding: 0 16px; }
 }
 
 /* ─── Section Label ─────────────────────────────────────── */
@@ -279,6 +285,38 @@ input, textarea, select { font-family: inherit; }
   text-transform: uppercase;
   color: var(--gray-light);
   margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .product-card .img-wrap {
+    height: 200px;
+  }
+}
+
+@media (max-width: 500px) {
+  .product-card .img-wrap {
+    height: 150px;
+  }
+  .product-card .img-wrap img {
+    padding: 10px;
+  }
+  .product-card .card-body {
+    padding: 12px;
+  }
+  .product-card .card-name {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .product-card .card-price {
+    font-size: 0.85rem;
+  }
+  .product-card .card-category {
+    font-size: 0.6rem;
+    margin-bottom: 4px;
+  }
 }
 
 /* ─── Badge ─────────────────────────────────────────────── */
@@ -403,3 +441,40 @@ input, textarea, select { font-family: inherit; }
 .w-full { width: 100%; }
 .relative { position: relative; }
 .overflow-hidden { overflow: hidden; }
+
+/* ─── Global Mobile Safeguards ──────────────────────────── */
+/* Prevent any element from causing horizontal scroll */
+* { max-width: 100%; }
+img, video, iframe, canvas, svg { max-width: 100%; height: auto; }
+
+/* Fix iOS background-attachment: fixed bug globally */
+@supports (-webkit-touch-callout: none) {
+  [style*="background-attachment: fixed"],
+  .about-page,
+  .contact-page {
+    background-attachment: scroll !important;
+  }
+}
+
+/* Improve tap target sizes on mobile */
+@media (max-width: 768px) {
+  a, button, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* Exception: inline text links and small icon containers */
+  .navbar__link,
+  .footer__col-links a,
+  .tip-card__link,
+  .auth-switch a {
+    min-height: unset;
+    min-width: unset;
+  }
+}
+
+/* Prevent font size inflation on iOS when rotating */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+

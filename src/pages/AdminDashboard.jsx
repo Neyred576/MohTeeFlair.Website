@@ -225,7 +225,7 @@ export default function AdminDashboard() {
   const [notifStatus, setNotifStatus] = useState('idle'); // idle | sending | sent
 
   const { products, loading, addProduct, updateProduct, removeProduct } = useProducts();
-  const { sendNotification } = useNotifications();
+  const { sendNotification, notifications, deleteNotification } = useNotifications();
 
   const handleLogout = () => {
     sessionStorage.removeItem('mtf-admin');
@@ -426,42 +426,104 @@ export default function AdminDashboard() {
             >
               <div className="admin-page-header">
                 <div>
-                  <h1 className="admin-page-title">Send Notification</h1>
-                  <p className="admin-page-sub">Broadcast a message to all users instantly</p>
+                  <h1 className="admin-page-title">Broadcast Center</h1>
+                  <p className="admin-page-sub">Communicate directly with your users in real time</p>
                 </div>
               </div>
 
-              <div className="admin-notif-card">
-                <div className="admin-notif-card__glow" />
-                <label className="admin-notif-label">
-                  <Bell size={14} /> Message
-                </label>
-                <textarea
-                  className="admin-notif-textarea"
-                  rows={5}
-                  value={notification}
-                  onChange={e => setNotification(e.target.value)}
-                  placeholder="Write your message here... e.g. '🎉 New arrivals just dropped! Shop now for exclusive deals.'"
-                  maxLength={300}
-                />
-                <div className="admin-notif-footer">
-                  <span className="admin-notif-count">{notification.length}/300</span>
-                  <button
-                    className={`admin-btn ${notifStatus === 'sent' ? 'admin-btn--success' : 'admin-btn--primary'}`}
-                    onClick={handleSendNotification}
-                    disabled={!notification.trim() || notifStatus === 'sending'}
-                  >
-                    {notifStatus === 'sending' && 'Sending...'}
-                    {notifStatus === 'sent' && <><Check size={16} /> Sent to all users!</>}
-                    {notifStatus === 'idle' && <><Send size={15} /> Send Notification</>}
-                  </button>
+              <div className="admin-notif-layout">
+                {/* Left/Top: Broadcast form */}
+                <div className="admin-notif-card">
+                  <div className="admin-notif-card__glow" />
+                  <label className="admin-notif-label">
+                    <Bell size={14} /> Send a New Message
+                  </label>
+                  <textarea
+                    className="admin-notif-textarea"
+                    rows={4}
+                    value={notification}
+                    onChange={e => setNotification(e.target.value)}
+                    placeholder="Write your message here... e.g. '🎉 New arrivals just dropped! Shop now for exclusive deals.'"
+                    maxLength={300}
+                  />
+                  <div className="admin-notif-footer">
+                    <span className="admin-notif-count">{notification.length}/300</span>
+                    <button
+                      className={`admin-btn ${notifStatus === 'sent' ? 'admin-btn--success' : 'admin-btn--primary'}`}
+                      onClick={handleSendNotification}
+                      disabled={!notification.trim() || notifStatus === 'sending'}
+                    >
+                      {notifStatus === 'sending' && 'Sending...'}
+                      {notifStatus === 'sent' && <><Check size={16} /> Sent to all users!</>}
+                      {notifStatus === 'idle' && <><Send size={15} /> Send Broadcast</>}
+                    </button>
+                  </div>
+
+                  <div className="admin-notif-preview">
+                    <p className="admin-notif-preview__label">Preview</p>
+                    <div className="admin-notif-preview__banner">
+                      <Bell size={16} style={{ color: '#FFD700', flexShrink: 0 }} />
+                      <p>{notification || 'Your message will appear here...'}</p>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="admin-notif-preview">
-                  <p className="admin-notif-preview__label">Preview</p>
-                  <div className="admin-notif-preview__banner">
-                    <Bell size={16} style={{ color: '#FFD700', flexShrink: 0 }} />
-                    <p>{notification || 'Your message will appear here...'}</p>
+                {/* Right/Bottom: Broadcast History */}
+                <div className="admin-history-card">
+                  <div className="admin-notif-card__glow" />
+                  <h2 className="admin-history-title">
+                    <Bell size={16} /> History & Status
+                  </h2>
+                  <p className="admin-history-subtitle">
+                    Active notifications appear on customer screens instantly.
+                  </p>
+                  
+                  <div className="admin-history-list">
+                    {notifications.length === 0 ? (
+                      <div className="admin-history-empty">
+                        <Bell size={24} style={{ opacity: 0.3 }} />
+                        <p>No broadcast history found</p>
+                      </div>
+                    ) : (
+                      notifications.map((notif, index) => {
+                        const date = notif.createdAt && typeof notif.createdAt.toDate === 'function'
+                          ? notif.createdAt.toDate().toLocaleDateString(undefined, {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                          : 'Just now';
+                        
+                        const isCurrentlyActive = index === 0 && notif.createdAt && 
+                          (new Date() - notif.createdAt.toDate()) < 24 * 60 * 60 * 1000;
+
+                        return (
+                          <div key={notif.id} className={`admin-history-item ${isCurrentlyActive ? 'admin-history-item--active' : ''}`}>
+                            <div className="admin-history-item__body">
+                              <div className="admin-history-item__header">
+                                <span className={`admin-history-badge ${isCurrentlyActive ? 'admin-history-badge--live' : 'admin-history-badge--expired'}`}>
+                                  {isCurrentlyActive ? 'Live Alert' : 'Expired'}
+                                </span>
+                                <span className="admin-history-item__date">{date}</span>
+                              </div>
+                              <p className="admin-history-item__text">{notif.message}</p>
+                            </div>
+                            <button
+                              className="admin-history-item__delete-btn"
+                              onClick={() => {
+                                if (window.confirm("Delete this notification? This will instantly remove it from all users' screens in real time.")) {
+                                  deleteNotification(notif.id);
+                                }
+                              }}
+                              title="Delete notification"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
                 </div>
               </div>

@@ -115,7 +115,7 @@
 
 /* Drawer Footer */
 .cart-drawer__footer {
-  padding: 20px 28px 28px;
+  padding: 20px 28px calc(28px + env(safe-area-inset-bottom, 0px));
   display: flex; flex-direction: column; gap: 14px;
 }
 .cart-drawer__total {

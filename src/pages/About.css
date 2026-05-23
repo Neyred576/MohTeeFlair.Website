@@ -3,10 +3,14 @@
   background-image: linear-gradient(to bottom, rgba(8,8,8,0.7) 0%, var(--black) 100%), url('/images/about_bg.jpg');
   background-size: cover;
   background-position: center top;
-  background-attachment: fixed;
+  /* Remove fixed attachment - causes issues on iOS Safari */
+  background-attachment: scroll;
   background-repeat: no-repeat;
   min-height: 100vh; 
   padding-bottom: 100px; 
+}
+@media (max-width: 600px) {
+  .about-page { padding-bottom: 60px; }
 }
 
 /* Founder */
@@ -97,7 +101,8 @@
   align-items: center; gap: 80px;
   position: relative; z-index: 1;
 }
-@media (max-width: 900px) { .about-founder__inner { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .about-founder__inner { grid-template-columns: 1fr; gap: 40px; } }
+@media (max-width: 600px) { .about-founder__inner { gap: 24px; } }
 
 .about-founder__img-col { display: flex; justify-content: center; }
 
@@ -183,6 +188,12 @@
   font-family: var(--font-serif);
   font-size: 1.05rem; font-style: italic;
   color: var(--rg-pale); line-height: 1.6;
+}
+@media (max-width: 600px) {
+  .about-founder__copy p { font-size: 0.88rem; line-height: 1.75; }
+  .about-founder__quote { padding: 10px 14px; gap: 10px; }
+  .about-founder__quote blockquote { font-size: 0.95rem; }
+  .about-founder__img-badge { right: 0; padding: 8px 12px; font-size: 0.65rem; }
 }
 
 /* Values */
@@ -270,6 +281,11 @@
   padding: 60px 40px;
   overflow: hidden;
   display: flex; flex-direction: column; align-items: center;
+}
+@media (max-width: 600px) {
+  .about-cta { padding: 50px 0; }
+  .about-cta__inner { padding: 36px 20px; border-radius: var(--radius-md); }
+  .about-cta__sub { font-size: 0.88rem; }
 }
 .about-cta__glow {
   position: absolute; top: 50%; left: 50%;

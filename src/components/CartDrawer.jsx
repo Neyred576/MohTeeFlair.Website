@@ -1,11 +1,21 @@
 import React, { useEffect, useRef } from 'react';
-import { X, Trash2, ShoppingBag, Plus, Minus } from 'lucide-react';
+import { X, Trash2, ShoppingBag, Plus, Minus, AlertTriangle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import './CartDrawer.css';
 
 export default function CartDrawer() {
-  const { cartItems, cartOpen, setCartOpen, removeFromCart, updateQty, subtotalLabel, itemCount, clearCart } = useCart();
+  const {
+    cartItems,
+    cartOpen,
+    setCartOpen,
+    removeFromCart,
+    updateQty,
+    subtotalLabel,
+    itemCount,
+    clearCart,
+    hasComingSoonItems,
+  } = useCart();
   const navigate = useNavigate();
   const drawerRef = useRef();
 
@@ -21,6 +31,7 @@ export default function CartDrawer() {
   }, [cartOpen]);
 
   const handleCheckout = () => {
+    if (hasComingSoonItems) return;
     setCartOpen(false);
     navigate('/cart');
   };
@@ -68,7 +79,11 @@ export default function CartDrawer() {
                   </div>
                   <div className="cart-item__info">
                     <p className="cart-item__name">{item.name}</p>
-                    <p className="cart-item__price">{[1, 3].includes(item.id) ? 'AED 30' : 'COMING SOON'}</p>
+                    <p className={`cart-item__price ${item.comingSoon ? 'cart-item__price--soon' : ''}`}>
+                      {item.comingSoon
+                        ? 'Coming Soon'
+                        : `AED ${(item.price ?? 0).toFixed(2)}`}
+                    </p>
                     <div className="cart-item__qty">
                       <button onClick={() => updateQty(item.id, -1)} className="cart-item__qty-btn"><Minus size={12} /></button>
                       <span>{item.qty}</span>
@@ -92,7 +107,22 @@ export default function CartDrawer() {
               <span>Subtotal</span>
               <span className="cart-drawer__total-price">{subtotalLabel}</span>
             </div>
-            <button className="btn btn-primary w-full" onClick={handleCheckout} id="cart-checkout-btn">
+
+            {/* Coming Soon block warning */}
+            {hasComingSoonItems && (
+              <div className="cart-drawer__coming-soon-warning">
+                <AlertTriangle size={13} />
+                <span>Remove <strong>Coming Soon</strong> items to checkout</span>
+              </div>
+            )}
+
+            <button
+              className={`btn btn-primary w-full ${hasComingSoonItems ? 'btn--disabled' : ''}`}
+              onClick={handleCheckout}
+              disabled={hasComingSoonItems}
+              id="cart-checkout-btn"
+              title={hasComingSoonItems ? 'Remove Coming Soon items to proceed' : 'Proceed to checkout'}
+            >
               Proceed to Checkout
             </button>
             <button className="cart-drawer__clear" onClick={clearCart}>Clear bag</button>

@@ -1,9 +1,9 @@
 /* Push Permission Prompt */
 .push-prompt {
   position: fixed;
-  bottom: 24px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   z-index: 9998;
   display: flex;
   align-items: center;
@@ -14,7 +14,8 @@
   border-radius: 16px;
   padding: 16px 20px;
   max-width: 520px;
-  width: calc(100% - 32px);
+  width: 90%;
+  box-sizing: border-box;
   box-shadow: 0 16px 50px rgba(0,0,0,0.5), 0 0 30px rgba(201,160,122,0.08);
 }
 

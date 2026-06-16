@@ -78,20 +78,63 @@ export default function About() {
             <h2 className="heading-lg">Born from a Passion<br /><span className="gradient-text">for Extraordinary Beauty</span></h2>
             <div className="about-founder__copy">
               <p>
-                Moh Tee Flair was born from a singular vision: to create a beauty brand that celebrates femininity in all its forms — bold, soft, dramatic, minimal — all equally exquisite.
+                There are women who follow the light <br />
+                and there are women who become it.
               </p>
               <p>
-                Our founder, inspired by the world's most luxurious beauty houses yet driven by a deeply African creative spirit, set out to craft products that felt indulgent without being inaccessible. The result? A collection that whispers luxury in every texture, every scent, every glide.
+                The founder of Moh Tee Flair, has always belonged to the second kind.
               </p>
               <p>
-                Today, Moh Tee Flair is more than a makeup brand. It is a ritual, a statement, a daily act of self-love that thousands of women across East Africa and beyond have made part of their lives.
+                Long before the world spoke her name, she carried an unspoken elegance:<br />
+                a quiet confidence, a softness that did not diminish her strength,<br />
+                and a presence that filled a room without raising its volume.
               </p>
-            </div>
-            <div className="about-founder__quote">
-              <Sparkles size={18} color="var(--rg-gold)" />
-              <blockquote>
-                "I wanted to build something that made every woman feel seen, celebrated, and absolutely stunning."
-              </blockquote>
+              <p>
+                She grew up understanding something most people miss —<br />
+                that beauty is not decoration, it is identity.<br />
+                Not the noise one puts on, but the radiance one reveals.
+              </p>
+              <p>
+                Her life has been a study in contrasts:<br />
+                power expressed softly, femininity held with intention,<br />
+                discipline wrapped in grace.<br />
+                It is this delicate balance that shaped her philosophy —<br />
+                that true luxury whispers rather than shouts.<br />
+                Moh Tee Flair was born from this truth.
+              </p>
+              <p>
+                For her, beauty was never about altering the woman —<br />
+                it was about elevating her essence.<br />
+                She believed every woman holds a signature radiance,<br />
+                a light that cannot be imitated or taught.<br />
+                It simply needs to be sculpted.
+              </p>
+              <p>
+                Guided by this belief, she envisioned Moh Tee Flair not as a cosmetics brand,<br />
+                but as a legacy house — a maison of radiance.<br />
+                A place where formulas meet artistry,<br />
+                where science meets softness,<br />
+                where every detail is deliberate, rare, and quietly powerful.
+              </p>
+              <p>
+                Her approach to luxury is intimate.<br />
+                Nothing mass-made.<br />
+                Nothing loud.<br />
+                Every product is a ritual.<br />
+                Every bottle, a piece of couture.<br />
+                Every formula, an homage to the modern woman who leads with elegance.
+              </p>
+              <p>
+                Today, Moh Tee Flair stands as the embodiment of Her philosophy:<br />
+                that beauty is not what you chase —<br />
+                it is what rises from within when your identity is honored.
+              </p>
+              <p>
+                And so her legacy begins,<br />
+                not with noise, but with illumination.<br />
+                Not with trends, but with timelessness.<br />
+                Not with a brand, but with a signature.
+              </p>
             </div>
             <Link to="/products" className="btn btn-primary mt-8" id="about-shop-btn">
               Explore the Collection <ArrowRight size={15} />

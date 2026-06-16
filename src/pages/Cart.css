@@ -223,3 +223,100 @@
   color: var(--rg-gold); margin-bottom: 8px;
 }
 .cart-confirmed p { font-size: 0.95rem; color: var(--gray-light); line-height: 1.7; }
+
+/* ── Coming Soon price badge ── */
+.cart-page-item__price--soon {
+  color: #e0a030;
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+  background: rgba(224,160,48,0.1);
+  border: 1px solid rgba(224,160,48,0.28);
+  border-radius: 4px;
+  padding: 2px 8px;
+  display: inline-block;
+  margin-bottom: 14px;
+}
+
+/* ── Coming Soon checkout warning in summary ── */
+.cart-coming-soon-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: rgba(224,160,48,0.07);
+  border: 1px solid rgba(224,160,48,0.28);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  font-size: 0.8rem;
+  color: #e0a030;
+  line-height: 1.55;
+}
+.cart-coming-soon-warning svg { flex-shrink: 0; margin-top: 2px; }
+.cart-coming-soon-warning strong { color: #f0b840; }
+
+/* ── Disabled checkout button ── */
+.btn--disabled,
+.btn--disabled:hover {
+  opacity: 0.42;
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+  pointer-events: none;
+}
+
+/* ── Step 2 order recap ── */
+.cart-checkout-recap {
+  background: var(--black-light);
+  border: 1px solid rgba(185,135,90,0.15);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 28px;
+}
+.cart-checkout-recap__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(185,135,90,0.07);
+}
+.cart-checkout-recap__row img {
+  width: 44px; height: 44px;
+  object-fit: contain;
+  background: var(--black-mid);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(185,135,90,0.1);
+  padding: 4px;
+  flex-shrink: 0;
+}
+.cart-checkout-recap__name {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--off-white);
+}
+.cart-checkout-recap__price {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--rg-gold);
+  white-space: nowrap;
+}
+.cart-checkout-recap__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 14px;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gray-light);
+  font-weight: 600;
+}
+.cart-checkout-recap__total span:last-child {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: var(--rg-gold);
+  text-transform: none;
+  letter-spacing: 0;
+}

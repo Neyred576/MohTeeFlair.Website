@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Menu, X, User, LogOut } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useGlowAndSave } from '../context/GlowAndSaveContext';
 import './Navbar.css';
 
 const navLinks = [
@@ -19,6 +20,7 @@ export default function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { itemCount, setCartOpen } = useCart();
   const { user, logout } = useAuth();
+  const { glowSettings } = useGlowAndSave();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,6 +56,16 @@ export default function Navbar() {
               </NavLink>
             </li>
           ))}
+          {glowSettings?.active && (
+            <li>
+              <NavLink
+                to="/glow-and-save"
+                className={({ isActive }) => `navbar__link navbar__link--glow ${isActive ? 'navbar__link--active' : ''}`}
+              >
+                ✨ Glow & Save
+              </NavLink>
+            </li>
+          )}
         </ul>
 
         {/* Actions */}
@@ -120,6 +132,15 @@ export default function Navbar() {
             {l.label}
           </NavLink>
         ))}
+        {glowSettings?.active && (
+          <NavLink
+            to="/glow-and-save"
+            className={({ isActive }) => `navbar__mobile-link navbar__mobile-link--glow ${isActive ? 'navbar__mobile-link--active' : ''}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            ✨ Glow & Save
+          </NavLink>
+        )}
         {!user && (
           <Link
             to="/signup"

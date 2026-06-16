@@ -1,12 +1,17 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import { useProducts } from './ProductContext';
+import { useGlowAndSave } from './GlowAndSaveContext';
 
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { products } = useProducts();
+  const { bundles, vipSettings } = useGlowAndSave();
+
   const [cartItems, setCartItems] = useState(() => {
     try {
       const saved = localStorage.getItem('mtf_cart');
@@ -15,13 +20,60 @@ export function CartProvider({ children }) {
   });
   const [cartOpen, setCartOpen] = useState(false);
 
+  // Persist cart to localStorage
   useEffect(() => {
     localStorage.setItem('mtf_cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
+  // Enrich cart items with REAL-TIME price from products/bundles and apply VIP discounts
+  const enrichedCartItems = useMemo(() => {
+    const isVipActive = user?.isVIP && vipSettings?.active;
+    const vipDiscount = isVipActive ? (vipSettings.discountPercent || 0) : 0;
+
+    return cartItems.map(item => {
+      if (item.isBundle) {
+        const liveBundle = bundles.find(b => b.id === item.id);
+        if (liveBundle) {
+          return {
+            ...item,
+            name: liveBundle.name || item.name,
+            img: liveBundle.img || item.img,
+            originalPrice: liveBundle.originalPrice || 0,
+            price: liveBundle.finalPrice || 0,
+            comingSoon: false,
+          };
+        }
+        return item;
+      }
+
+      // Normal product
+      const liveProduct = products.find(p => p.id === item.id);
+      if (liveProduct) {
+        let basePrice = liveProduct.price ?? 0;
+        let finalPrice = basePrice;
+        let originalPrice = basePrice;
+
+        if (isVipActive && basePrice > 0) {
+          finalPrice = basePrice * (1 - (vipDiscount / 100));
+        }
+
+        return {
+          ...item,
+          price: finalPrice,
+          originalPrice: originalPrice,
+          comingSoon: !!liveProduct.comingSoon,
+          name: liveProduct.name ?? item.name,
+          img: liveProduct.img ?? item.img,
+          category: liveProduct.category ?? item.category,
+        };
+      }
+      return item;
+    });
+  }, [cartItems, products, bundles, user, vipSettings]);
+
   const addToCart = (product) => {
     if (!user) {
-      alert("Please login or sign up to add items to your cart.");
+      alert('Please login or sign up to add items to your cart.');
       navigate('/login');
       return;
     }
@@ -47,19 +99,45 @@ export function CartProvider({ children }) {
 
   const clearCart = () => setCartItems([]);
 
-  const total = cartItems.reduce((s, i) => {
-    const price = [1, 3].includes(i.id) ? 30 : 0;
-    return s + price * i.qty;
-  }, 0);
-  const itemCount = cartItems.reduce((s, i) => s + i.qty, 0);
-  const hasPricedItems = cartItems.some(i => [1, 3].includes(i.id));
-  const subtotalLabel = hasPricedItems && total > 0 ? `AED ${total}` : 'COMING SOON';
+  // Only count items that have a real price (not coming soon)
+  const pricedItems = enrichedCartItems.filter(i => !i.comingSoon && (i.price ?? 0) > 0);
+  
+  const totalOriginalPrice = pricedItems.reduce((s, i) => s + (i.originalPrice ?? i.price ?? 0) * i.qty, 0);
+  const total = pricedItems.reduce((s, i) => s + (i.price ?? 0) * i.qty, 0);
+  const totalDiscount = totalOriginalPrice - total;
+  
+  const itemCount = enrichedCartItems.reduce((s, i) => s + i.qty, 0);
+
+  // True if EVERY item in the cart has a real price set
+  const hasComingSoonItems = enrichedCartItems.some(i => i.comingSoon || !(i.price > 0));
+  const allPriced = enrichedCartItems.length > 0 && !hasComingSoonItems;
+
+  const subtotalLabel = allPriced
+    ? `AED ${total.toFixed(2)}`
+    : enrichedCartItems.length > 0
+      ? pricedItems.length > 0
+        ? `AED ${total.toFixed(2)} + Coming Soon item(s)`
+        : 'COMING SOON'
+      : 'AED 0.00';
 
   const handleSocialCheckout = async (platform, phone) => {
-    if (cartItems.length === 0) return;
-    const itemsText = cartItems.map(i => `${i.qty}x ${i.name}`).join(', ');
-    const message = `Hello, I want to buy:\n${itemsText}`;
+    if (enrichedCartItems.length === 0) return;
+    const itemsText = enrichedCartItems.map(i => {
+      const priceStr = i.comingSoon ? '(Coming Soon)' : `AED ${((i.price ?? 0) * i.qty).toFixed(2)}`;
+      return `${i.qty}x ${i.name} ${i.isBundle ? '(Bundle)' : ''} — ${priceStr}`;
+    }).join('\n');
     
+    let totalStr = '';
+    if (total > 0) {
+      if (totalDiscount > 0) {
+        totalStr = `\n\nOriginal Total: AED ${totalOriginalPrice.toFixed(2)}\nDiscount Saved: AED ${totalDiscount.toFixed(2)}\nFinal Payment: AED ${total.toFixed(2)}`;
+      } else {
+        totalStr = `\n\nTotal: AED ${total.toFixed(2)}`;
+      }
+    }
+    
+    const message = `Hello, I want to order:\n${itemsText}${totalStr}`;
+
     if (platform === 'whatsapp') {
       const encoded = encodeURIComponent(message);
       window.location.href = `https://wa.me/${phone}?text=${encoded}`;
@@ -77,7 +155,7 @@ export function CartProvider({ children }) {
       console.warn('Clipboard write failed', e);
       alert(`Please manually send us this message:\n\n${message}`);
     }
-    
+
     if (platform === 'facebook') {
       window.location.href = 'https://m.me/MohTeeflair';
     } else if (platform === 'instagram') {
@@ -86,7 +164,22 @@ export function CartProvider({ children }) {
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQty, clearCart, total, subtotalLabel, itemCount, cartOpen, setCartOpen, handleSocialCheckout }}>
+    <CartContext.Provider value={{
+      cartItems: enrichedCartItems,
+      addToCart,
+      removeFromCart,
+      updateQty,
+      clearCart,
+      total,
+      totalOriginalPrice,
+      totalDiscount,
+      subtotalLabel,
+      itemCount,
+      cartOpen,
+      setCartOpen,
+      handleSocialCheckout,
+      hasComingSoonItems,
+    }}>
       {children}
     </CartContext.Provider>
   );

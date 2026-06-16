@@ -169,3 +169,10 @@
 @media (max-width: 600px) {
   .footer__bottom { flex-direction: column; gap: 8px; text-align: center; }
 }
+
+/* Admin Lock */
+.footer__admin-lock {
+  cursor: pointer;
+  opacity: 0;
+  margin-left: 2px;
+}

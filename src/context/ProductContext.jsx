@@ -33,6 +33,8 @@ export const ProductProvider = ({ children }) => {
     try {
       const productsRef = collection(db, 'products');
       await addDoc(productsRef, {
+        stock: 100, // Default stock, admin can edit
+        lowStockThreshold: 10,
         ...productData,
         createdAt: new Date()
       });

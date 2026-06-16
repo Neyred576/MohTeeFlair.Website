@@ -130,14 +130,21 @@ export default function Products() {
                   <div className="img-wrap">
                     <img src={p.img} alt={p.name} loading="lazy" />
                     <div className="card-overlay">
-                      <button
-                        className={`btn ${added[p.id] ? 'btn-ghost' : 'btn-primary'}`}
-                        style={{ padding: '10px 22px', fontSize: '0.72rem' }}
-                        onClick={() => handleAdd(p)}
-                        id={`product-add-${p.id}`}
-                      >
-                        {added[p.id] ? '✓ Added!' : 'Add to Bag'}
-                      </button>
+                      {!p.comingSoon && (
+                        <button
+                          className={`btn ${added[p.id] ? 'btn-ghost' : 'btn-primary'}`}
+                          style={{ padding: '10px 22px', fontSize: '0.72rem' }}
+                          onClick={() => handleAdd(p)}
+                          id={`product-add-${p.id}`}
+                        >
+                          {added[p.id] ? '✓ Added!' : 'Add to Bag'}
+                        </button>
+                      )}
+                      {p.comingSoon && (
+                        <span className="btn btn-ghost" style={{ padding: '10px 22px', fontSize: '0.72rem', cursor: 'default', opacity: 0.7 }}>
+                          Coming Soon
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="card-body">
@@ -145,7 +152,9 @@ export default function Products() {
                     <p className="card-name">{p.name}</p>
                     <p className="products-card-desc">{p.desc}</p>
                     <div className="products-card-footer">
-                      <p className="card-price">{[1, 3].includes(p.id) ? 'AED 30' : 'COMING SOON'}</p>
+                      <p className="card-price">
+                        {p.comingSoon ? 'COMING SOON' : `AED ${parseFloat(p.price).toFixed(2)}`}
+                      </p>
                       <div className="products-card-stars">
                         {[...Array(5)].map((_, i) => (
                           <Star key={i} size={11} fill="var(--rg-gold)" color="var(--rg-gold)" />

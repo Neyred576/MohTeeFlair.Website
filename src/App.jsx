@@ -11,6 +11,8 @@ import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import PushPermissionPrompt from './components/PushPermissionPrompt';
+import GuestTracker from './components/GuestTracker';
+import { GlowAndSaveProvider } from './context/GlowAndSaveContext';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import BeautyTips from './pages/BeautyTips';
@@ -20,6 +22,7 @@ import Cart from './pages/Cart';
 import SignUp from './pages/SignUp';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
+import GlowAndSave from './pages/GlowAndSave';
 
 const pageVariants = {
   initial: { opacity: 0, y: 18 },
@@ -48,7 +51,8 @@ function AnimatedRoutes() {
           <Route path="/cart"        element={<Cart />} />
           <Route path="/signup"      element={<SignUp />} />
           <Route path="/login"       element={<Login />} />
-          <Route path="/admin"       element={<AdminDashboard />} />
+          <Route path="/admin"        element={<AdminDashboard />} />
+          <Route path="/glow-and-save" element={<GlowAndSave />} />
         </Routes>
       </motion.div>
     </AnimatePresence>
@@ -60,20 +64,23 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <ProductProvider>
-          <NotificationProvider>
-            <CartProvider>
-              <div className="noise-overlay" />
-              <NotificationBanner />
-              <Navbar />
-              <CartDrawer />
-              <main style={{ paddingTop: 'var(--navbar-h)' }}>
-                <AnimatedRoutes />
-              </main>
-              <Footer />
-              <PWAInstallPrompt />
-              <PushPermissionPrompt />
-            </CartProvider>
-          </NotificationProvider>
+          <GlowAndSaveProvider>
+            <NotificationProvider>
+              <CartProvider>
+                <GuestTracker />
+                <div className="noise-overlay" />
+                <NotificationBanner />
+                <Navbar />
+                <CartDrawer />
+                <main style={{ paddingTop: 'var(--navbar-h)' }}>
+                  <AnimatedRoutes />
+                </main>
+                <Footer />
+                <PWAInstallPrompt />
+                <PushPermissionPrompt />
+              </CartProvider>
+            </NotificationProvider>
+          </GlowAndSaveProvider>
         </ProductProvider>
       </AuthProvider>
     </BrowserRouter>

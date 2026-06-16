@@ -150,7 +150,7 @@ export default function Home() {
           </div>
 
           <div className="home-products-grid">
-            {featuredProducts.slice(0, 8).map((p, i) => (
+              {featuredProducts.slice(0, 8).map((p, i) => (
               <motion.div
                 key={p.id}
                 className="product-card"
@@ -162,21 +162,30 @@ export default function Home() {
                 <div className="img-wrap">
                   <img src={p.img} alt={p.name} loading="lazy" />
                   <div className="card-overlay">
-                    <button
-                      className="btn btn-primary"
-                      style={{ padding: '10px 22px', fontSize: '0.72rem' }}
-                      onClick={() => addToCart(p)}
-                      id={`add-to-cart-${p.id}`}
-                    >
-                      Add to Bag
-                    </button>
+                    {!p.comingSoon && (
+                      <button
+                        className="btn btn-primary"
+                        style={{ padding: '10px 22px', fontSize: '0.72rem' }}
+                        onClick={() => addToCart(p)}
+                        id={`add-to-cart-${p.id}`}
+                      >
+                        Add to Bag
+                      </button>
+                    )}
+                    {p.comingSoon && (
+                      <span className="btn btn-ghost" style={{ padding: '10px 22px', fontSize: '0.72rem', cursor: 'default', opacity: 0.7 }}>
+                        Coming Soon
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="card-body">
                   <p className="card-category">{p.category}</p>
                   <p className="card-name">{p.name}</p>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:8 }}>
-                    <p className="card-price">{[1, 3].includes(p.id) ? 'AED 30' : 'COMING SOON'}</p>
+                    <p className="card-price">
+                      {p.comingSoon ? 'COMING SOON' : `AED ${parseFloat(p.price).toFixed(2)}`}
+                    </p>
                     <div style={{ display:'flex', gap:2 }}>
                       {[...Array(5)].map((_,i) => <Star key={i} size={11} fill="#C9A07A" color="#C9A07A" />)}
                     </div>
@@ -206,9 +215,12 @@ export default function Home() {
             transition={{ duration: 0.7 }}
           >
             <span className="section-label">The MTF Promise</span>
-            <h2 className="heading-xl">Luxury Is Not a<br /><span className="gradient-text">Privilege — It's a Right.</span></h2>
+            <h2 className="heading-xl">
+              There are women who follow the light<br />
+              <span className="gradient-text">and there are women who become it.</span>
+            </h2>
             <p className="home-banner__desc">
-              At Moh Tee Flair, we believe every woman deserves to feel exquisite. Our formulations blend cutting-edge science with the finest ingredients to deliver results that go beyond beauty.
+              The founder of Moh Tee Flair, has always belonged to the second kind.
             </p>
             <Link to="/about" className="btn btn-primary" id="banner-about-btn">
               Discover Our Story <ArrowRight size={15} />

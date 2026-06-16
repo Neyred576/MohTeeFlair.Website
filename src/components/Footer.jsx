@@ -92,11 +92,11 @@ export default function Footer() {
 
         {/* Bottom */}
         <div className="footer__bottom">
-          <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+          <p style={{ display: 'flex', alignItems: 'center', justifySelf: 'center', gap: '4px' }}>
             © {new Date().getFullYear()} Moh Tee Flair. All rights reserved.
             <Lock 
-              size={12} 
-              style={{ cursor: 'pointer', opacity: 0.1, marginLeft: 2 }} 
+              size={8} 
+              className="footer__admin-lock"
               onClick={() => navigate('/admin')} 
               aria-label="Admin Access"
             />

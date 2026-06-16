@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Lock, Sparkles, Tag } from 'lucide-react';
 import { useGlowAndSave } from '../context/GlowAndSaveContext';
@@ -32,6 +32,35 @@ export default function GlowAndSave() {
   const isVipActive = vipSettings?.active;
   const userIsVip = user?.isVIP;
 
+  const [showSaleItems, setShowSaleItems] = useState(true);
+  const [saleMessage, setSaleMessage] = useState("");
+
+  useEffect(() => {
+    if (!activeCampaign || !activeCampaign.targetDate) {
+      setShowSaleItems(true);
+      setSaleMessage("");
+      return;
+    }
+    
+    const checkTimer = () => {
+      const target = new Date(activeCampaign.targetDate);
+      const now = new Date();
+      const hasEnded = now >= target;
+      
+      if (activeCampaign.timerMode === 'toStart') {
+        setShowSaleItems(hasEnded);
+        setSaleMessage(hasEnded ? "" : "The sale hasn't started yet. Get ready!");
+      } else if (activeCampaign.timerMode === 'toEnd') {
+        setShowSaleItems(!hasEnded);
+        setSaleMessage(!hasEnded ? "" : "This sale has ended. Stay tuned for the next one!");
+      }
+    };
+    
+    checkTimer();
+    const interval = setInterval(checkTimer, 1000);
+    return () => clearInterval(interval);
+  }, [activeCampaign]);
+
   return (
     <div className="glow-page">
       <div className="glow-hero">
@@ -58,6 +87,13 @@ export default function GlowAndSave() {
         )}
 
         <div className="glow-sections">
+          {!showSaleItems ? (
+            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+              <Sparkles size={40} color="var(--rg-gold)" style={{ margin: '0 auto 20px auto' }} />
+              <h2 className="heading-lg" style={{ color: 'var(--rg-gold)' }}>{saleMessage}</h2>
+            </div>
+          ) : (
+            <>
           {(glowSettings.discountedProducts && glowSettings.discountedProducts.length > 0) && (
             <div style={{ marginBottom: 60 }}>
               <div className="glow-section-title">
@@ -153,6 +189,8 @@ export default function GlowAndSave() {
                   })
                 )}
               </div>
+            </>
+          )}
             </>
           )}
         </div>

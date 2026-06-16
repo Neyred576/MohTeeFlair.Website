@@ -749,6 +749,22 @@ export default function AdminDashboard() {
                       style={{ width: '100%', padding: '10px', background: 'var(--surface-color)', border: '1px solid var(--border-color)', borderRadius: 6, color: '#fff' }}
                     />
                   </div>
+                  <div className="admin-form-field" style={{ flex: 1 }}>
+                    <input 
+                      type="text"
+                      readOnly
+                      placeholder="Final Price"
+                      value={
+                        discountForm.productId && discountForm.discountPercent 
+                          ? `AED ${(
+                              ((products || []).find(p => p.id === discountForm.productId)?.price || 0) * 
+                              (1 - Number(discountForm.discountPercent) / 100)
+                            ).toFixed(2)}`
+                          : ''
+                      }
+                      style={{ width: '100%', padding: '10px', background: 'rgba(255,215,0,0.06)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: 6, color: 'var(--rg-gold)', cursor: 'not-allowed' }}
+                    />
+                  </div>
                   <button 
                     className="admin-btn admin-btn--primary"
                     onClick={() => {

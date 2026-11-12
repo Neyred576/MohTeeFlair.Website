@@ -119,6 +119,7 @@ input, textarea, select { font-family: inherit; }
   .btn { padding: 12px 24px; font-size: 0.75rem; }
 }
 
+
 .btn-primary {
   background: linear-gradient(135deg, var(--rg-main), var(--rg-dark));
   color: var(--white);
@@ -210,6 +211,7 @@ input, textarea, select { font-family: inherit; }
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(185,135,90,0.15);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: var(--radius-md);
   transition: var(--transition);
 }
@@ -218,6 +220,13 @@ input, textarea, select { font-family: inherit; }
   border-color: rgba(185,135,90,0.4);
   box-shadow: var(--shadow-gold);
   transform: translateY(-4px);
+}
+@media (max-width: 768px) {
+  .card-glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(255,255,255,0.06); /* Slightly more opaque when blur is disabled */
+  }
 }
 
 /* ─── Product Card ──────────────────────────────────────── */
@@ -242,15 +251,29 @@ input, textarea, select { font-family: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.5s ease;
 }
 .product-card .img-wrap img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   padding: 20px;
-  transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+  transition: transform 0.5s cubic-bezier(0.4,0,0.2,1), filter 0.4s ease;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+  will-change: transform;
 }
-.product-card:hover .img-wrap img { transform: scale(1.07); }
+.product-card:hover .img-wrap img {
+  transform: scale(1.07);
+  filter: drop-shadow(0 8px 20px rgba(185,135,90,0.2));
+}
+@media (max-width: 768px) {
+  .product-card .img-wrap img {
+    filter: none;
+  }
+  .product-card:hover .img-wrap img {
+    filter: none;
+  }
+}
 .product-card .card-overlay {
   position: absolute;
   inset: 0;
@@ -391,7 +414,12 @@ input, textarea, select { font-family: inherit; }
   pointer-events: none;
   z-index: 9999;
   opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+@media (max-width: 768px) {
+  .noise-overlay {
+    display: none;
+  }
 }
 
 /* ─── Shimmer Animation ─────────────────────────────────── */

@@ -87,6 +87,11 @@
   color: var(--gray-light); transition: var(--transition); display: flex;
 }
 .cart-page-item__qty button:hover { color: var(--rg-gold); }
+.cart-page-item__shade-tag {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85em;
+  font-weight: 400;
+}
 .cart-page-item__qty span { font-size: 0.9rem; font-weight: 600; color: var(--off-white); min-width: 20px; text-align: center; }
 .cart-page-item__subtotal { font-size: 0.9rem; font-weight: 600; color: var(--rg-pale); }
 .cart-page-item__remove { color: rgba(185,135,90,0.3); transition: var(--transition); display: flex; }

@@ -1,8 +1,9 @@
 .pwa-prompt {
   position: fixed;
   bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 24px;
+  left: auto;
+  transform: none;
   width: 90%;
   max-width: 440px;
   z-index: 9999;

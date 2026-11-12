@@ -75,9 +75,9 @@ export default function PushPermissionPrompt() {
       {showPrompt && (
         <motion.div
           className="push-prompt"
-          initial={{ x: '-50%', y: '-30%', opacity: 0 }}
-          animate={{ x: '-50%', y: '-50%', opacity: 1 }}
-          exit={{ x: '-50%', y: '-30%', opacity: 0 }}
+          initial={{ x: 0, y: -20, opacity: 0 }}
+          animate={{ x: 0, y: 0, opacity: 1 }}
+          exit={{ x: 0, y: -20, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 260, damping: 22 }}
         >
           <div className="push-prompt__icon-wrap">

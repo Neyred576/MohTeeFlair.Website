@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, Star, Sparkles, Shield, Truck, RotateCcw } from 'lucide-react';
-import { useCart } from '../context/CartContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Star, Sparkles } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
+import ProductModal from '../components/ProductModal';
+import Particles from '../components/Particles';
 import './Home.css';
 
 const heroWords = ['Timeless.', 'Bold.', 'Unapologetic.'];
 
-const perks = [
-  { icon: <Shield size={22} />,    title: '100% Authentic',   desc: 'Genuine luxury products' },
-  { icon: <RotateCcw size={22} />, title: 'Easy Returns',     desc: '30-day return policy' },
-  { icon: <Star size={22} />,      title: 'Premium Quality',  desc: 'Dermatologist tested' },
-];
+
 
 const beautyTeaser = [
   { title: 'The Art of the Smoky Eye',      tag: 'Eye Makeup',  img: '/images/products/tools/MTF Eyeshadow.png' },
@@ -22,9 +19,50 @@ const beautyTeaser = [
 
 export default function Home() {
   const [wordIdx, setWordIdx] = useState(0);
-  const { addToCart } = useCart();
   const { products } = useProducts();
+  const [selectedProduct, setSelectedProduct] = useState(null);
   
+  // Newsletter State
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState('idle');
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setStatus('loading');
+    
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: "bc25a509-c086-4586-bc36-2a8d14a15dfd",
+          subject: "New Inner Circle Subscriber",
+          email: email,
+          message: `You have a new subscriber to the Inner Circle from the Home Page: ${email}`
+        }),
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        setStatus('success');
+        setEmail('');
+        setTimeout(() => setStatus('idle'), 5000);
+      } else {
+        setStatus('error');
+        setTimeout(() => setStatus('idle'), 5000);
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 5000);
+    }
+  };
+
   const featuredProducts = products ? products.filter(p => p.featured) : [];
 
   useEffect(() => {
@@ -34,10 +72,16 @@ export default function Home() {
 
   return (
     <div className="home">
+      <ProductModal
+        product={selectedProduct}
+        isOpen={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+      />
       {/* ── Hero ── */}
       <section className="hero">
         <div className="hero__glow hero__glow--left" />
         <div className="hero__glow hero__glow--right" />
+        <Particles count={30} />
 
         <div className="container hero__inner">
           <div className="hero__content">
@@ -56,8 +100,20 @@ export default function Home() {
               transition={{ delay: 0.25, duration: 0.8 }}
             >
               Beauty That's<br />
-              <span className="gradient-text hero__cycle-word" key={wordIdx}>
-                {heroWords[wordIdx]}
+              <span style={{ display: 'block', overflow: 'visible', padding: '8px 0 16px', lineHeight: 1.05 }}>
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={wordIdx}
+                    className="gradient-text hero__cycle-word"
+                    initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
+                    animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
+                    exit={{ opacity: 0, clipPath: 'inset(0 0 0 100%)' }}
+                    transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+                    style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
+                  >
+                    {heroWords[wordIdx]}
+                  </motion.span>
+                </AnimatePresence>
               </span>
             </motion.h1>
 
@@ -116,29 +172,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Perks ── */}
-      <section className="home-perks section-sm">
-        <div className="container">
-          <div className="home-perks__grid">
-            {perks.map((p, i) => (
-              <motion.div
-                key={p.title}
-                className="perk-card card-glass"
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-              >
-                <div className="perk-card__icon">{p.icon}</div>
-                <div>
-                  <p className="perk-card__title">{p.title}</p>
-                  <p className="perk-card__desc">{p.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+
 
       {/* ── Featured Products ── */}
       <section className="section home-featured">
@@ -153,38 +187,40 @@ export default function Home() {
               {featuredProducts.slice(0, 8).map((p, i) => (
               <motion.div
                 key={p.id}
+                layoutId={`product-card-${p.id}`}
                 className="product-card"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08, duration: 0.5 }}
+                onClick={() => {
+                  if (p.outOfStock) {
+                    alert("It's out of stock stocking soon");
+                  } else {
+                    setSelectedProduct(p);
+                  }
+                }}
+                style={{ cursor: 'pointer' }}
               >
                 <div className="img-wrap">
-                  <img src={p.img} alt={p.name} loading="lazy" />
+                  <motion.img 
+                    layoutId={`product-image-${p.id}`}
+                    src={p.img} 
+                    alt={p.name} 
+                    loading="lazy" 
+                  />
                   <div className="card-overlay">
-                    {!p.comingSoon && (
-                      <button
-                        className="btn btn-primary"
-                        style={{ padding: '10px 22px', fontSize: '0.72rem' }}
-                        onClick={() => addToCart(p)}
-                        id={`add-to-cart-${p.id}`}
-                      >
-                        Add to Bag
-                      </button>
-                    )}
-                    {p.comingSoon && (
-                      <span className="btn btn-ghost" style={{ padding: '10px 22px', fontSize: '0.72rem', cursor: 'default', opacity: 0.7 }}>
-                        Coming Soon
-                      </span>
-                    )}
+                    <span className="btn btn-primary" style={{ padding: '10px 22px', fontSize: '0.72rem', pointerEvents: 'none' }}>
+                      {p.outOfStock ? 'Out of Stock' : p.comingSoon ? 'Coming Soon' : 'Quick View'}
+                    </span>
                   </div>
                 </div>
                 <div className="card-body">
-                  <p className="card-category">{p.category}</p>
-                  <p className="card-name">{p.name}</p>
+                  <motion.p layoutId={`product-category-${p.id}`} className="card-category">{p.category}</motion.p>
+                  <motion.p layoutId={`product-name-${p.id}`} className="card-name">{p.name}</motion.p>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:8 }}>
                     <p className="card-price">
-                      {p.comingSoon ? 'COMING SOON' : `AED ${parseFloat(p.price).toFixed(2)}`}
+                      {p.outOfStock ? 'OUT OF STOCK' : p.comingSoon ? 'COMING SOON' : `AED ${parseFloat(p.price).toFixed(2)}`}
                     </p>
                     <div style={{ display:'flex', gap:2 }}>
                       {[...Array(5)].map((_,i) => <Star key={i} size={11} fill="#C9A07A" color="#C9A07A" />)}
@@ -303,15 +339,30 @@ export default function Home() {
             <p className="home-newsletter__sub">
               Subscribe for exclusive offers, early launches, and luxury beauty secrets.
             </p>
-            <form className="home-newsletter__form" onSubmit={e => e.preventDefault()}>
+            <form className="home-newsletter__form" onSubmit={handleSubscribe}>
               <input
                 type="email"
                 placeholder="Enter your email address"
                 className="home-newsletter__input"
                 id="home-newsletter-email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={status === 'loading' || status === 'success'}
+                required
               />
-              <button type="submit" className="btn btn-primary" id="home-newsletter-submit">
-                Subscribe
+              <button 
+                type="submit" 
+                className="btn btn-primary" 
+                id="home-newsletter-submit"
+                disabled={status === 'loading' || status === 'success'}
+                style={{
+                  backgroundColor: status === 'success' ? '#10B981' : status === 'error' ? '#EF4444' : undefined,
+                  borderColor: status === 'success' ? '#10B981' : status === 'error' ? '#EF4444' : undefined,
+                  color: (status === 'success' || status === 'error') ? '#fff' : undefined,
+                  minWidth: '120px'
+                }}
+              >
+                {status === 'loading' ? 'Subscribing...' : status === 'success' ? 'Subscribed ✓' : status === 'error' ? 'Error!' : 'Subscribe'}
               </button>
             </form>
           </motion.div>

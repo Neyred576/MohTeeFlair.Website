@@ -50,21 +50,30 @@ export function CartProvider({ children }) {
       const liveProduct = products.find(p => p.id === item.id);
       if (liveProduct) {
         let basePrice = liveProduct.price ?? 0;
-        let finalPrice = basePrice;
         let originalPrice = basePrice;
+        let finalPrice = basePrice;
 
-        if (isVipActive && basePrice > 0) {
-          finalPrice = basePrice * (1 - (vipDiscount / 100));
+        // Apply Glow & Save discount if this item was added from the Glow & Save page
+        if (item.glowDiscountPercent && item.glowDiscountPercent > 0 && basePrice > 0) {
+          finalPrice = basePrice * (1 - item.glowDiscountPercent / 100);
+        }
+
+        // Apply VIP discount on top (if active)
+        if (isVipActive && finalPrice > 0) {
+          finalPrice = finalPrice * (1 - (vipDiscount / 100));
         }
 
         return {
           ...item,
           price: finalPrice,
           originalPrice: originalPrice,
+          glowDiscountPercent: item.glowDiscountPercent ?? 0,
           comingSoon: !!liveProduct.comingSoon,
           name: liveProduct.name ?? item.name,
           img: liveProduct.img ?? item.img,
           category: liveProduct.category ?? item.category,
+          selectedShade: item.selectedShade || null,
+          cartItemId: item.cartItemId || item.id
         };
       }
       return item;
@@ -77,30 +86,32 @@ export function CartProvider({ children }) {
       navigate('/login');
       return;
     }
+    const cartItemId = product.id + (product.selectedShade ? `-${product.selectedShade}` : '');
+    
     setCartItems(prev => {
-      const existing = prev.find(i => i.id === product.id);
+      const existing = prev.find(i => (i.cartItemId || i.id) === cartItemId);
       if (existing) {
-        return prev.map(i => i.id === product.id ? { ...i, qty: i.qty + 1 } : i);
+        return prev.map(i => (i.cartItemId || i.id) === cartItemId ? { ...i, qty: i.qty + 1 } : i);
       }
-      return [...prev, { ...product, qty: 1 }];
+      return [...prev, { ...product, cartItemId, qty: 1 }];
     });
     setCartOpen(true);
   };
 
-  const removeFromCart = (id) => {
-    setCartItems(prev => prev.filter(i => i.id !== id));
+  const removeFromCart = (cartItemId) => {
+    setCartItems(prev => prev.filter(i => (i.cartItemId || i.id) !== cartItemId));
   };
 
-  const updateQty = (id, delta) => {
+  const updateQty = (cartItemId, delta) => {
     setCartItems(prev =>
-      prev.map(i => i.id === id ? { ...i, qty: Math.max(1, i.qty + delta) } : i)
+      prev.map(i => (i.cartItemId || i.id) === cartItemId ? { ...i, qty: Math.max(1, i.qty + delta) } : i)
     );
   };
 
   const clearCart = () => setCartItems([]);
 
-  // Only count items that have a real price (not coming soon)
-  const pricedItems = enrichedCartItems.filter(i => !i.comingSoon && (i.price ?? 0) > 0);
+  // Only count items that have a real price (not coming soon or out of stock)
+  const pricedItems = enrichedCartItems.filter(i => !i.comingSoon && !i.outOfStock && (i.price ?? 0) > 0);
   
   const totalOriginalPrice = pricedItems.reduce((s, i) => s + (i.originalPrice ?? i.price ?? 0) * i.qty, 0);
   const total = pricedItems.reduce((s, i) => s + (i.price ?? 0) * i.qty, 0);
@@ -109,22 +120,23 @@ export function CartProvider({ children }) {
   const itemCount = enrichedCartItems.reduce((s, i) => s + i.qty, 0);
 
   // True if EVERY item in the cart has a real price set
-  const hasComingSoonItems = enrichedCartItems.some(i => i.comingSoon || !(i.price > 0));
+  const hasComingSoonItems = enrichedCartItems.some(i => i.comingSoon || i.outOfStock || !(i.price > 0));
   const allPriced = enrichedCartItems.length > 0 && !hasComingSoonItems;
 
   const subtotalLabel = allPriced
     ? `AED ${total.toFixed(2)}`
     : enrichedCartItems.length > 0
       ? pricedItems.length > 0
-        ? `AED ${total.toFixed(2)} + Coming Soon item(s)`
-        : 'COMING SOON'
+        ? `AED ${total.toFixed(2)} + Unavailable item(s)`
+        : 'UNAVAILABLE'
       : 'AED 0.00';
 
   const handleSocialCheckout = async (platform, phone) => {
     if (enrichedCartItems.length === 0) return;
     const itemsText = enrichedCartItems.map(i => {
-      const priceStr = i.comingSoon ? '(Coming Soon)' : `AED ${((i.price ?? 0) * i.qty).toFixed(2)}`;
-      return `${i.qty}x ${i.name} ${i.isBundle ? '(Bundle)' : ''} — ${priceStr}`;
+      const priceStr = i.outOfStock ? '(Out of Stock)' : i.comingSoon ? '(Coming Soon)' : `AED ${((i.price ?? 0) * i.qty).toFixed(2)}`;
+      const shadeStr = i.selectedShade ? ` [Shade: ${i.selectedShade}]` : '';
+      return `${i.qty}x ${i.name}${shadeStr} ${i.isBundle ? '(Bundle)' : ''} — ${priceStr}`;
     }).join('\n');
     
     let totalStr = '';

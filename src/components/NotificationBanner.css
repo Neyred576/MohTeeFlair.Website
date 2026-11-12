@@ -1,26 +1,28 @@
 .global-notification-banner {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
+  top: 24px;
+  right: 24px;
+  left: auto;
+  width: auto;
+  max-width: 400px;
+  border-radius: var(--radius-md);
   background: linear-gradient(135deg, rgba(200, 162, 200, 0.95), rgba(153, 102, 204, 0.95)); /* Luxurious purple/gold hint */
   color: #fff;
   z-index: 9999;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding: 12px 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  padding: 16px 50px 16px 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .notification-content {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
-  max-width: 1200px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .notification-content p {
@@ -43,7 +45,9 @@
   cursor: pointer;
   padding: 8px;
   position: absolute;
-  right: 16px;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -54,7 +58,7 @@
 .notification-close-btn:hover {
   color: #fff;
   background: rgba(255, 255, 255, 0.1);
-  transform: scale(1.1);
+  transform: translateY(-50%) scale(1.1);
 }
 
 @keyframes gentle-ring {
@@ -68,7 +72,11 @@
 
 @media (max-width: 768px) {
   .global-notification-banner {
-    padding: 10px 40px 10px 16px;
+    top: 16px;
+    right: 16px;
+    left: 16px; /* Span across most of the screen on mobile */
+    max-width: none;
+    padding: 14px 44px 14px 16px;
   }
   .notification-content p {
     font-size: 0.9rem;

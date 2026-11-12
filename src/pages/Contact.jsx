@@ -20,9 +20,35 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1400));
-    setLoading(false);
-    setSubmitted(true);
+    
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: "bc25a509-c086-4586-bc36-2a8d14a15dfd",
+          subject: form.subject || `New Message from ${form.name}`,
+          name: form.name,
+          email: form.email,
+          message: form.message
+        }),
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        alert("Something went wrong. Please try again later.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

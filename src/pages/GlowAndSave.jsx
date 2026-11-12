@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useProducts } from '../context/ProductContext';
 import CountdownTimer from '../components/CountdownTimer';
+import ProductModal from '../components/ProductModal';
 import { Link } from 'react-router-dom';
 import './GlowAndSave.css';
 
@@ -14,6 +15,8 @@ export default function GlowAndSave() {
   const { products } = useProducts();
   const { addToCart } = useCart();
   const { user } = useAuth();
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [customAddFn, setCustomAddFn] = useState(null);
 
   if (loading) return <div className="glow-inactive">Loading Glow & Save...</div>;
 
@@ -63,6 +66,12 @@ export default function GlowAndSave() {
 
   return (
     <div className="glow-page">
+      <ProductModal
+        product={selectedProduct}
+        isOpen={!!selectedProduct}
+        onClose={() => { setSelectedProduct(null); setCustomAddFn(null); }}
+        customAddToCart={customAddFn}
+      />
       <div className="glow-hero">
         <div className="glow-hero__glow" />
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
@@ -112,6 +121,11 @@ export default function GlowAndSave() {
                       initial={{ opacity: 0, scale: 0.95 }}
                       whileInView={{ opacity: 1, scale: 1 }}
                       viewport={{ once: true }}
+                      onClick={() => {
+                        setCustomAddFn(() => () => addToCart({ ...product, price: finalPrice, glowDiscountPercent: dp.discountPercent }));
+                        setSelectedProduct({ ...product, price: finalPrice });
+                      }}
+                      style={{ cursor: 'pointer' }}
                     >
                       <div className="bundle-badge bundle-badge--vip" style={{ background: 'var(--rg-gold)' }}>{dp.discountPercent}% OFF</div>
                       <img src={product.img || '/images/products/skincare/MTF Body Oil.png'} alt={product.name} className="bundle-img" style={{ objectFit: 'cover' }} />
@@ -122,13 +136,9 @@ export default function GlowAndSave() {
                           <span className="bundle-price-orig">AED {product.price?.toFixed(2)}</span>
                           <span className="bundle-price-final">AED {finalPrice.toFixed(2)}</span>
                         </div>
-                        
-                        <button 
-                          className="btn btn-primary w-full"
-                          onClick={() => addToCart({ ...product, price: finalPrice })}
-                        >
-                          <ShoppingBag size={15} /> Add to Bag
-                        </button>
+                        <span className="btn btn-primary w-full" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, pointerEvents: 'none' }}>
+                          <ShoppingBag size={15} /> Quick View
+                        </span>
                       </div>
                     </motion.div>
                   );

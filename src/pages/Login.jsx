@@ -30,7 +30,7 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-page auth-page--login">
       <div className="auth-page__bg" />
       <div className="auth-page__glow auth-page__glow--left" />
       <div className="auth-page__glow auth-page__glow--right" />

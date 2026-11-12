@@ -79,8 +79,10 @@ export default function CartDrawer() {
                   </div>
                   <div className="cart-item__info">
                     <p className="cart-item__name">{item.name}</p>
-                    <p className={`cart-item__price ${item.comingSoon ? 'cart-item__price--soon' : ''}`}>
-                      {item.comingSoon
+                    <p className={`cart-item__price ${item.comingSoon || item.outOfStock ? 'cart-item__price--soon' : ''}`}>
+                      {item.outOfStock
+                        ? 'Out of Stock'
+                        : item.comingSoon
                         ? 'Coming Soon'
                         : `AED ${(item.price ?? 0).toFixed(2)}`}
                     </p>
@@ -112,7 +114,7 @@ export default function CartDrawer() {
             {hasComingSoonItems && (
               <div className="cart-drawer__coming-soon-warning">
                 <AlertTriangle size={13} />
-                <span>Remove <strong>Coming Soon</strong> items to checkout</span>
+                <span>Remove <strong>Unavailable</strong> items to checkout</span>
               </div>
             )}
 
@@ -121,7 +123,7 @@ export default function CartDrawer() {
               onClick={handleCheckout}
               disabled={hasComingSoonItems}
               id="cart-checkout-btn"
-              title={hasComingSoonItems ? 'Remove Coming Soon items to proceed' : 'Proceed to checkout'}
+              title={hasComingSoonItems ? 'Remove Unavailable items to proceed' : 'Proceed to checkout'}
             >
               Proceed to Checkout
             </button>

@@ -78,7 +78,7 @@ export default function Cart() {
                     const itemSubtotal = itemPrice !== null ? itemPrice * item.qty : null;
                     return (
                       <motion.div
-                        key={item.id}
+                        key={item.cartItemId || item.id}
                         className="cart-page-item"
                         layout
                         initial={{ opacity: 0, x: -20 }}
@@ -90,9 +90,14 @@ export default function Cart() {
                         </div>
                         <div className="cart-page-item__info">
                           <p className="cart-page-item__cat">{item.category}</p>
-                          <p className="cart-page-item__name">{item.name}</p>
-                          <p className={`cart-page-item__price ${item.comingSoon ? 'cart-page-item__price--soon' : ''}`}>
-                            {item.comingSoon ? 'COMING SOON' : (
+                          <p className="cart-page-item__name">
+                            {item.name}
+                            {item.selectedShade && (
+                              <span className="cart-page-item__shade-tag"> - {item.selectedShade}</span>
+                            )}
+                          </p>
+                          <p className={`cart-page-item__price ${item.comingSoon || item.outOfStock ? 'cart-page-item__price--soon' : ''}`}>
+                            {item.outOfStock ? 'OUT OF STOCK' : item.comingSoon ? 'COMING SOON' : (
                               <>
                                 {(item.originalPrice > item.price) && (
                                   <span style={{ textDecoration: 'line-through', color: 'var(--text-muted)', fontSize: '0.85em', marginRight: '6px' }}>AED {item.originalPrice.toFixed(2)}</span>
@@ -103,14 +108,14 @@ export default function Cart() {
                           </p>
                           <div className="cart-page-item__controls">
                             <div className="cart-page-item__qty">
-                              <button onClick={() => updateQty(item.id, -1)} id={`qty-minus-${item.id}`}><Minus size={13} /></button>
+                              <button onClick={() => updateQty(item.cartItemId || item.id, -1)} id={`qty-minus-${item.cartItemId || item.id}`}><Minus size={13} /></button>
                               <span>{item.qty}</span>
-                              <button onClick={() => updateQty(item.id, 1)} id={`qty-plus-${item.id}`}><Plus size={13} /></button>
+                              <button onClick={() => updateQty(item.cartItemId || item.id, 1)} id={`qty-plus-${item.cartItemId || item.id}`}><Plus size={13} /></button>
                             </div>
                             <span className="cart-page-item__subtotal">
                               {itemSubtotal !== null ? `AED ${itemSubtotal.toFixed(2)}` : '—'}
                             </span>
-                            <button className="cart-page-item__remove" onClick={() => removeFromCart(item.id)} id={`remove-${item.id}`}>
+                            <button className="cart-page-item__remove" onClick={() => removeFromCart(item.cartItemId || item.id)} id={`remove-${item.cartItemId || item.id}`}>
                               <Trash2 size={15} />
                             </button>
                           </div>
@@ -150,7 +155,7 @@ export default function Cart() {
                     >
                       <AlertTriangle size={15} />
                       <span>
-                        Your bag contains items marked <strong>Coming Soon</strong>. Remove or wait until they are available to proceed.
+                        Your bag contains items marked <strong>Coming Soon or Out of Stock</strong>. Remove or wait until they are available to proceed.
                       </span>
                     </motion.div>
                   )}
@@ -160,7 +165,7 @@ export default function Cart() {
                     onClick={handleProceed}
                     disabled={hasComingSoonItems}
                     id="cart-to-checkout"
-                    title={hasComingSoonItems ? 'Remove Coming Soon items to proceed' : 'Proceed to checkout'}
+                    title={hasComingSoonItems ? 'Remove Unavailable items to proceed' : 'Proceed to checkout'}
                   >
                     Proceed to Checkout <ArrowRight size={15} />
                   </button>
@@ -191,7 +196,7 @@ export default function Cart() {
                     <img src={item.img} alt={item.name} />
                     <span className="cart-checkout-recap__name">{item.qty}× {item.name} {item.isBundle ? '(Bundle)' : ''}</span>
                     <span className="cart-checkout-recap__price">
-                      {item.comingSoon ? 'Coming Soon' : `AED ${((item.price ?? 0) * item.qty).toFixed(2)}`}
+                      {item.outOfStock ? 'Out of Stock' : item.comingSoon ? 'Coming Soon' : `AED ${((item.price ?? 0) * item.qty).toFixed(2)}`}
                     </span>
                   </div>
                 ))}

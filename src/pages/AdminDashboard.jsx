@@ -96,9 +96,16 @@ function PasswordGate({ onSuccess }) {
 // ─── Product Form Modal ─────────────────────────────────────────────────────────
 function ProductModal({ product, onClose, onSave }) {
   const isEdit = !!product;
-  const [form, setForm] = useState(product || {
-    name: '', price: '', category: 'lips', img: '', desc: '', featured: false, comingSoon: false
+  const [form, setForm] = useState(() => {
+    const base = product || { name: '', price: '', category: 'lips', img: '', desc: '', featured: false, comingSoon: false, outOfStock: false };
+    return {
+      ...base,
+      // Always normalize shades to an array, handles older products with no shades field
+      shades: Array.isArray(base.shades) ? base.shades : []
+    };
   });
+  
+  const [shadeInput, setShadeInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [uploadingImg, setUploadingImg] = useState(false);
@@ -151,7 +158,9 @@ function ProductModal({ product, onClose, onSave }) {
       await onSave({
         ...form,
         price: form.comingSoon ? 0 : (parseFloat(form.price) || 0),
-        comingSoon: !!form.comingSoon
+        comingSoon: !!form.comingSoon,
+        outOfStock: !!form.outOfStock,
+        shades: form.shades || []
       });
       setSaved(true);
       setTimeout(onClose, 800);
@@ -186,20 +195,27 @@ function ProductModal({ product, onClose, onSave }) {
               <div className="admin-price-toggle">
                 <button
                   type="button"
-                  className={`admin-price-mode-btn ${!form.comingSoon ? 'admin-price-mode-btn--active' : ''}`}
-                  onClick={() => handleChange('comingSoon', false)}
+                  className={`admin-price-mode-btn ${!form.comingSoon && !form.outOfStock ? 'admin-price-mode-btn--active' : ''}`}
+                  onClick={() => { handleChange('comingSoon', false); handleChange('outOfStock', false); }}
                 >
                   AED Price
                 </button>
                 <button
                   type="button"
                   className={`admin-price-mode-btn ${form.comingSoon ? 'admin-price-mode-btn--active' : ''}`}
-                  onClick={() => handleChange('comingSoon', true)}
+                  onClick={() => { handleChange('comingSoon', true); handleChange('outOfStock', false); }}
                 >
                   Coming Soon
                 </button>
+                <button
+                  type="button"
+                  className={`admin-price-mode-btn ${form.outOfStock ? 'admin-price-mode-btn--active' : ''}`}
+                  onClick={() => { handleChange('outOfStock', true); handleChange('comingSoon', false); }}
+                >
+                  Out of Stock
+                </button>
               </div>
-              {!form.comingSoon && (
+              {!form.comingSoon && !form.outOfStock && (
                 <input
                   type="number"
                   step="0.01"
@@ -211,6 +227,9 @@ function ProductModal({ product, onClose, onSave }) {
               )}
               {form.comingSoon && (
                 <div className="admin-coming-soon-preview">Will display as "COMING SOON" on site</div>
+              )}
+              {form.outOfStock && (
+                <div className="admin-coming-soon-preview" style={{ color: '#ef4444' }}>Will display as "OUT OF STOCK" on site</div>
               )}
             </div>
           </div>
@@ -259,6 +278,63 @@ function ProductModal({ product, onClose, onSave }) {
           <div className="admin-form-field">
             <label><FileText size={13} /> Description</label>
             <textarea rows={3} value={form.desc} onChange={e => handleChange('desc', e.target.value)} placeholder="Product description..." />
+          </div>
+
+          <div className="admin-form-field">
+            <label><Package size={13} /> Shades (Optional)</label>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+              <input 
+                value={shadeInput} 
+                onChange={e => setShadeInput(e.target.value)} 
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (shadeInput.trim()) {
+                      setForm(f => ({ ...f, shades: [...(f.shades || []), shadeInput.trim()] }));
+                      setShadeInput('');
+                    }
+                  }
+                }}
+                placeholder="e.g. Ruby Red" 
+                style={{ flex: 1 }}
+              />
+              <button 
+                type="button" 
+                className="admin-btn admin-btn--primary" 
+                style={{ padding: '0 16px' }}
+                onClick={() => {
+                  if (shadeInput.trim()) {
+                    setForm(f => ({ ...f, shades: [...(f.shades || []), shadeInput.trim()] }));
+                    setShadeInput('');
+                  }
+                }}
+              >
+                Add
+              </button>
+            </div>
+            
+            {form.shades && form.shades.length > 0 ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {form.shades.map((shade, idx) => (
+                  <div key={idx} style={{ 
+                    display: 'flex', alignItems: 'center', gap: '6px', 
+                    background: 'rgba(185,135,90,0.15)', color: 'var(--rg-pale)', 
+                    padding: '4px 10px', borderRadius: '4px', fontSize: '0.85rem'
+                  }}>
+                    {shade}
+                    <button 
+                      type="button" 
+                      onClick={() => setForm(f => ({ ...f, shades: f.shades.filter((_, i) => i !== idx) }))}
+                      style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', padding: 0, display: 'flex' }}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="admin-coming-soon-preview" style={{ marginTop: 4 }}>Leave blank if this product has no variations.</div>
+            )}
           </div>
 
           <button type="submit" className="admin-form-submit" disabled={saving}>
@@ -1118,7 +1194,8 @@ export default function AdminDashboard() {
                               onBlur={e => updateProduct(p.id, { lowStockThreshold: parseInt(e.target.value) || 10 })} />
                           </td>
                           <td>
-                            {p.comingSoon ? <span className="admin-badge admin-badge--coming-soon">Coming Soon</span>
+                            {p.outOfStock ? <span className="admin-badge" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)' }}>Out of Stock</span>
+                              : p.comingSoon ? <span className="admin-badge admin-badge--coming-soon">Coming Soon</span>
                               : isLow ? <span className="admin-badge" style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)' }}>⚠ Low Stock</span>
                               : <span className="admin-badge" style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)' }}>✓ In Stock</span>}
                           </td>
@@ -1203,7 +1280,9 @@ export default function AdminDashboard() {
                             </td>
                             <td><span className="admin-badge">{p.category}</span></td>
                             <td className="admin-price">
-                              {p.comingSoon
+                              {p.outOfStock 
+                                ? <span className="admin-badge" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)' }}>Out of Stock</span>
+                                : p.comingSoon
                                 ? <span className="admin-badge admin-badge--coming-soon">Coming Soon</span>
                                 : `AED ${parseFloat(p.price).toFixed(2)}`
                               }

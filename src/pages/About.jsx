@@ -1,7 +1,7 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, Heart, Star, Award, Leaf } from 'lucide-react';
+import { ArrowRight, Sparkles, Heart, Star, Award, Leaf, ChevronDown } from 'lucide-react';
 import './About.css';
 
 const values = [
@@ -18,6 +18,8 @@ const milestones = [
 ];
 
 export default function About() {
+  const [storyExpanded, setStoryExpanded] = useState(false);
+
   return (
     <div className="about-page">
       {/* Header */}
@@ -77,69 +79,126 @@ export default function About() {
             <span className="section-label">The Visionary</span>
             <h2 className="heading-lg">Born from a Passion<br /><span className="gradient-text">for Extraordinary Beauty</span></h2>
             <div className="about-founder__copy">
-              <p>
-                There are women who follow the light <br />
-                and there are women who become it.
-              </p>
-              <p>
-                The founder of Moh Tee Flair, has always belonged to the second kind.
-              </p>
-              <p>
-                Long before the world spoke her name, she carried an unspoken elegance:<br />
-                a quiet confidence, a softness that did not diminish her strength,<br />
-                and a presence that filled a room without raising its volume.
-              </p>
-              <p>
-                She grew up understanding something most people miss —<br />
-                that beauty is not decoration, it is identity.<br />
-                Not the noise one puts on, but the radiance one reveals.
-              </p>
-              <p>
-                Her life has been a study in contrasts:<br />
-                power expressed softly, femininity held with intention,<br />
-                discipline wrapped in grace.<br />
-                It is this delicate balance that shaped her philosophy —<br />
-                that true luxury whispers rather than shouts.<br />
-                Moh Tee Flair was born from this truth.
-              </p>
-              <p>
-                For her, beauty was never about altering the woman —<br />
-                it was about elevating her essence.<br />
-                She believed every woman holds a signature radiance,<br />
-                a light that cannot be imitated or taught.<br />
-                It simply needs to be sculpted.
-              </p>
-              <p>
-                Guided by this belief, she envisioned Moh Tee Flair not as a cosmetics brand,<br />
-                but as a legacy house — a maison of radiance.<br />
-                A place where formulas meet artistry,<br />
-                where science meets softness,<br />
-                where every detail is deliberate, rare, and quietly powerful.
-              </p>
-              <p>
-                Her approach to luxury is intimate.<br />
-                Nothing mass-made.<br />
-                Nothing loud.<br />
-                Every product is a ritual.<br />
-                Every bottle, a piece of couture.<br />
-                Every formula, an homage to the modern woman who leads with elegance.
-              </p>
-              <p>
-                Today, Moh Tee Flair stands as the embodiment of Her philosophy:<br />
-                that beauty is not what you chase —<br />
-                it is what rises from within when your identity is honored.
-              </p>
-              <p>
-                And so her legacy begins,<br />
-                not with noise, but with illumination.<br />
-                Not with trends, but with timelessness.<br />
-                Not with a brand, but with a signature.
-              </p>
+              <div className="about-founder__copy-preview">
+                <p>
+                  There are women who follow the light <br />
+                  and there are women who become it.
+                </p>
+                <p>
+                  The founder of Moh Tee Flair, has always belonged to the second kind.
+                </p>
+                <p>
+                  Long before the world spoke her name, she carried an unspoken elegance:<br />
+                  a quiet confidence, a softness that did not diminish her strength,<br />
+                  and a presence that filled a room without raising its volume.
+                </p>
+                {!storyExpanded && <div className="about-founder__copy-fade" />}
+              </div>
+
+              <AnimatePresence initial={false}>
+                {storyExpanded && (
+                  <motion.div
+                    key="full-story"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+                    className="about-founder__copy-expanded"
+                  >
+                    <p>
+                      She grew up understanding something most people miss —<br />
+                      that beauty is not decoration, it is identity.<br />
+                      Not the noise one puts on, but the radiance one reveals.
+                    </p>
+                    <p>
+                      Her life has been a study in contrasts:<br />
+                      power expressed softly, femininity held with intention,<br />
+                      discipline wrapped in grace.<br />
+                      It is this delicate balance that shaped her philosophy —<br />
+                      that true luxury whispers rather than shouts.<br />
+                      Moh Tee Flair was born from this truth.
+                    </p>
+                    <p>
+                      For her, beauty was never about altering the woman —<br />
+                      it was about elevating her essence.<br />
+                      She believed every woman holds a signature radiance,<br />
+                      a light that cannot be imitated or taught.<br />
+                      It simply needs to be sculpted.
+                    </p>
+                    <p>
+                      Guided by this belief, she envisioned Moh Tee Flair not as a cosmetics brand,<br />
+                      but as a legacy house — a maison of radiance.<br />
+                      A place where formulas meet artistry,<br />
+                      where science meets softness,<br />
+                      where every detail is deliberate, rare, and quietly powerful.
+                    </p>
+                    <p>
+                      Her approach to luxury is intimate.<br />
+                      Nothing mass-made.<br />
+                      Nothing loud.<br />
+                      Every product is a ritual.<br />
+                      Every bottle, a piece of couture.<br />
+                      Every formula, an homage to the modern woman who leads with elegance.
+                    </p>
+                    <p>
+                      Today, Moh Tee Flair stands as the embodiment of Her philosophy:<br />
+                      that beauty is not what you chase —<br />
+                      it is what rises from within when your identity is honored.
+                    </p>
+                    <p>
+                      And so her legacy begins,<br />
+                      not with noise, but with illumination.<br />
+                      Not with trends, but with timelessness.<br />
+                      Not with a brand, but with a signature.
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <button
+                type="button"
+                onClick={() => setStoryExpanded(!storyExpanded)}
+                className="about-founder__toggle-btn"
+                aria-expanded={storyExpanded}
+              >
+                <span>{storyExpanded ? 'Show Less' : 'Read Full Story'}</span>
+                <ChevronDown
+                  size={15}
+                  className={`about-founder__toggle-icon ${storyExpanded ? 'about-founder__toggle-icon--rotated' : ''}`}
+                />
+              </button>
             </div>
             <Link to="/products" className="btn btn-primary mt-8" id="about-shop-btn">
               Explore the Collection <ArrowRight size={15} />
             </Link>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Photo Gallery */}
+      <section className="section about-gallery">
+        <div className="container">
+          <div className="text-center mb-10">
+            <span className="section-label">Behind the Brand</span>
+            <h2 className="heading-xl gradient-text">A Glimpse of MTF</h2>
+          </div>
+          <div className="about-gallery__grid">
+            {[
+              { src: '/images/moh/about-1.jpg', alt: 'MTF Beauty — 1' },
+              { src: '/images/moh/about-2.jpg', alt: 'MTF Beauty — 2' },
+            ].map((img, i) => (
+              <motion.div
+                key={img.src}
+                className="about-gallery__item"
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.65, delay: i * 0.15 }}
+              >
+                <img src={img.src} alt={img.alt} className="about-gallery__img" />
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Menu, X, User, LogOut } from 'lucide-react';
+import { ShoppingBag, Menu, X, User, LogOut, Heart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useGlowAndSave } from '../context/GlowAndSaveContext';
+import { useWishlist } from '../context/WishlistContext';
 import './Navbar.css';
 
 const navLinks = [
@@ -19,6 +20,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { itemCount, setCartOpen } = useCart();
+  const { wishlistItems } = useWishlist();
   const { user, logout } = useAuth();
   const { glowSettings } = useGlowAndSave();
   const navigate = useNavigate();
@@ -70,6 +72,12 @@ export default function Navbar() {
 
         {/* Actions */}
         <div className="navbar__actions">
+          {/* Wishlist */}
+          <Link to="/wishlist" className="navbar__icon-btn" aria-label="Go to wishlist">
+            <Heart size={20} />
+            {wishlistItems.length > 0 && <span className="navbar__badge">{wishlistItems.length}</span>}
+          </Link>
+
           {/* Cart */}
           <button
             className="navbar__icon-btn"
@@ -141,6 +149,13 @@ export default function Navbar() {
             ✨ Glow & Save
           </NavLink>
         )}
+        <Link
+          to="/wishlist"
+          className="navbar__mobile-link"
+          onClick={() => setMenuOpen(false)}
+        >
+          Wishlist {wishlistItems.length > 0 && `(${wishlistItems.length})`}
+        </Link>
         {!user && (
           <Link
             to="/signup"
